@@ -48,5 +48,21 @@
                 </span>
             </a>
         {% endif %}
+        {% if site.social.github %}
+            <a href="https://github.com/{{ site.social.github }}" class="button is-medium">
+                <span class="icon is-medium">
+                    <i class="fa-brands fa-github fa-xl"></i>
+                    <span class="is-sr-only">Github</span>
+                </span>
+            </a>
+        {% endif %}
+        {% if site.social.linkedin %}
+            <a href="https://www.linkedin.com/in/{{ site.social.linkedin }}" class="button is-medium">
+                <span class="icon is-medium">
+                    <i class="fa-brands fa-linkedin fa-xl"></i>
+                    <span class="is-sr-only">LinkedIn</span>
+                </span>
+            </a>
+        {% endif %}
     </div>
 {% endif %}
