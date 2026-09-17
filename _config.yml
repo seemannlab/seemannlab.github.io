@@ -9,3 +9,4 @@ remote_theme: chrisrhymes/bulma-clean-theme@v0.14.0
 social:
   github: seemannlab
   linkedin: stefan-e-seemann
+fixed_navbar: top
