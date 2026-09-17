@@ -3,4 +3,6 @@ description: lab webpage
 baseurl: "https://seemannlab.github.io/"
 url: ""
 markdown: kramdown
-remote-theme: Read-Only-Jekyll-Theme
+plugins:
+  - jekyll-remote-theme
+remote_theme: benbalter/retlab
