@@ -6,4 +6,4 @@ markdown: kramdown
 plugins:
   - jekyll-remote-theme
 remote_theme: chrisrhymes/bulma-clean-theme@v1.0.0
-force_theme: light
+force_theme: dark
