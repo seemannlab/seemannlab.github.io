@@ -5,4 +5,4 @@ url: ""
 markdown: kramdown
 plugins:
   - jekyll-remote-theme
-remote_theme: benbalter/retlab
+remote_theme: chrisrhymes/bulma-clean-theme@v0.14.0
