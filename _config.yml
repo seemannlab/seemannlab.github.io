@@ -1,0 +1,6 @@
+title: seemannlab
+description: lab webpage
+baseurl: "https://seemannlab.github.io/"
+url: "https://seemannlab.github.io/"
+markdown: kramdown
+theme: jekyll-theme-minimal
