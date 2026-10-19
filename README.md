@@ -1,3 +1,6 @@
-# Stefan E Seemann
+# Seemannlab webpage
 
-I am an Associate Professor at the [Section for Health Data Science and AI](https://publichealth.ku.dk/about-the-department/section-for-health-data-science-and-ai/), [Department of Public Health](https://publichealth.ku.dk/), University of Copenhagen.
+## How to update publication list
+
+`curl "https://rth.dk/publications/get_publications.php?PubWords=Seemann" > _data/publications.json`
+`python scripts/convert-publ-html2json.py`

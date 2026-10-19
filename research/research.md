@@ -4,7 +4,7 @@ title: Research
 permalink: /research/
 ---
 
-## Scientific Publications (peer reviewed)
+# Scientific Publications (peer reviewed)
 
 <div id="publications-container">
 {% for pub in site.data.publications_clean %}
@@ -20,6 +20,8 @@ permalink: /research/
     {% endif %}
     </p>
   </div>
-  <br>
+
+---
+
 {% endfor %}
 </div>
