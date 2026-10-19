@@ -20,8 +20,6 @@ permalink: /research/
     {% endif %}
     </p>
   </div>
-
----
-
+  <hr>
 {% endfor %}
 </div>
