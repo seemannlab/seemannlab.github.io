@@ -4,9 +4,13 @@ baseurl: ""
 url: ""
 markdown: kramdown
 plugins:
+  - jekyll-feed
   - jekyll-remote-theme
 remote_theme: chrisrhymes/bulma-clean-theme@v0.14.0
 social:
   github: seemannlab
   linkedin: stefan-e-seemann
 fixed_navbar: top
+exclude:
+  - Gemfile
+  - Gemfile.lock
