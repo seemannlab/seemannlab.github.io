@@ -9,10 +9,10 @@ permalink: /research/
 <div id="publications-container">
 {% for pub in site.data.publications_clean %}
   <details>
-    <summary>{{ pub.title }}</summary>
+    <summary><h3>{{ pub.title }}</h3></summary>
 
-    <p><strong>{{ pub.authors }}</strong></p>
-    <p><em>{{ pub.citation }}</em></p>
+    <p><strong>{{ pub.authors }}</strong></br>
+    <em>{{ pub.citation }}</em></br>
     {% if pub.paper_url %}
       <a href="{{ pub.paper_url }}">📄 Paper</a>
     {% endif %}
@@ -20,8 +20,9 @@ permalink: /research/
       <a href="{{ pub.pubmed_url }}">PubMed</a>
     {% endif %}
     {% if pub.summary %}
-      {{ pub.summary }}
+      </br>{{ pub.summary }}
     {% endif %}
+    </p>
   </details>
 {% endfor %}
 </div>

@@ -6,7 +6,7 @@
     "citation": "NPJ Sci Food. 2026 Jun 19",
     "pubmed_url": "https://www.pubmed.ncbi.nlm.nih.gov/42321212/",
     "paper_url": "https://doi.org/10.1038/s41538-026-00938-w",
-    "summary": "We demonstrate that riboswitch-targeted mutagenesis is a promising strategy to enhance lysine production in food fermentations. I have contributed with methodology development."
+    "summary": "We demonstrate that riboswitch-targeted mutagenesis is a promising strategy to enhance lysine production in food fermentations."
   },
   {
     "year": 2026,
@@ -30,7 +30,8 @@
     "authors": "Geissler AS, Carrasquer-Alvarez E, Anthon C, Frigaard NU, Gorodkin J, Seemann SE*",
     "citation": "Nucleic Acids Res. 2026 Feb 5;54(4):gkag081",
     "pubmed_url": "https://www.pubmed.ncbi.nlm.nih.gov/41641705/",
-    "paper_url": "https://doi.org/10.1093/nar/gkag081"
+    "paper_url": "https://doi.org/10.1093/nar/gkag081",
+    "summary": "The comparative genomics analysis represents a significant expansion of current understanding of regulatory mechanisms in cyanobacteria and RNA structures as potential regulators."
   },
   {
     "year": 2026,
@@ -38,7 +39,8 @@
     "authors": "Geissler AS, Carrasquer-Alvarez E, Gorodkin J, Frigaard NU, Seemann SE*",
     "citation": "NAR Genom Bioinform. 2026 Jan 10;8(1):lqaf207. eCollection 2026 Mar",
     "pubmed_url": "https://www.pubmed.ncbi.nlm.nih.gov/41524024/",
-    "paper_url": "https://doi.org/10.1093/nargab/lqaf207"
+    "paper_url": "https://doi.org/10.1093/nargab/lqaf207",
+    "summary": "We present transcriptomic insights for a cyanobacteria strain under previously unstudied physiological stresses that are essential for engineering of microbes at very high CO2."
   },
   {
     "year": 2025,
@@ -62,7 +64,8 @@
     "authors": "Frigaard N, Seemann SE*",
     "citation": "Carbon Capture Science &amp; Technology 2025, 14:100324",
     "pubmed_url": null,
-    "paper_url": "https://doi.org/10.1016/j.ccst.2024.100324"
+    "paper_url": "https://doi.org/10.1016/j.ccst.2024.100324",
+    "summary": "We found microbial candidates for reducing the climate impact of waste gases by cultivating natural seawater microbial communities under CH4 and CO2."
   },
   {
     "year": 2024,
@@ -174,7 +177,8 @@
     "authors": "Corsi GI, Gadekar VP, Gorodkin J*, Seemann SE*",
     "citation": "Nucleic Acids Res. 2022 Feb 28;50(4):e20",
     "pubmed_url": "https://www.pubmed.ncbi.nlm.nih.gov/34850137/",
-    "paper_url": "https://doi.org/10.1093/nar/gkab1131"
+    "paper_url": "https://doi.org/10.1093/nar/gkab1131".
+    "summary": "We developed a software to assess on- and off-targets of gene editing from the transcriptome. CRISPRroots identified critical off-target candidates that were overlooked in the original studies."
   },
   {
     "year": 2021,
@@ -262,7 +266,7 @@
     "authors": "Hecker N, Seemann SE, Silahtaroglu A, Ruzzo WL*, Gorodkin J*",
     "citation": "Sci Rep. 2017 Jul 18;7(1):5776",
     "pubmed_url": "https://www.pubmed.ncbi.nlm.nih.gov/28720872/",
-    "paper_url": null
+    "paper_url": "https://doi.org/10.1038/s41598-017-06200-4"
   },
   {
     "year": 2017,
@@ -270,7 +274,7 @@
     "authors": "Seemann SE, Mirza AH, Hansen C, Bang-Berthelsen CH, Garde C, Christensen-Dalsgaard M, Torarinsson E, Yao Z, Workman CT, Pociot F, Nielsen H, Tommerup N, Ruzzo WL, Gorodkin J*",
     "citation": "Genome Res. 2017 Aug;27(8):1371-1383. Epub 2017 May 9",
     "pubmed_url": "https://www.pubmed.ncbi.nlm.nih.gov/28487280/",
-    "paper_url": null
+    "paper_url": "https://doi.org/10.1101/gr.208652.116"
   },
   {
     "year": 2017,
@@ -278,7 +282,7 @@
     "authors": "Miladi M, Junge A, Costa F, Seemann SE, Havgaard JH, Gorodkin J*, Backofen R*",
     "citation": "Bioinformatics. 2017 Jul 15;33(14):2089-2096",
     "pubmed_url": "https://www.pubmed.ncbi.nlm.nih.gov/28334186/",
-    "paper_url": null
+    "paper_url": "https://doi.org/10.1093/bioinformatics/btx114"
   },
   {
     "year": 2016,
@@ -286,7 +290,7 @@
     "authors": "Damas ND, Marcatti M, Come C, Christensen LL, Nielsen MM, Baumgartner R, Gylling HM, Maglieri G, Rundsten CF, Seemann SE, Rapin N, Thezenas S, Vang S, Orntoft T, Andersen CL, Pedersen JS, Lund AH*",
     "citation": "Nat Commun. 2016 Dec 22;7:13875",
     "pubmed_url": "https://www.pubmed.ncbi.nlm.nih.gov/28004750/",
-    "paper_url": null
+    "paper_url": "https://doi.org/10.1038/ncomms13875"
   },
   {
     "year": 2016,
@@ -294,7 +298,7 @@
     "authors": "Holzer M, Krahling V, Amman F, Barth E, Bernhart SH, Carmelo VA, Collatz M, Doose G, Eggenhofer F, Ewald J, Fallmann J, Feldhahn LM, Fricke M, Gebauer J, Gruber AJ, Hufsky F, Indrischek H, Kanton S, Linde J, Mostajo N, Ochsenreiter R, Riege K, Rivarola-Duarte L, Sahyoun AH, Saunders SJ, Seemann SE, Tanzer A, Vogel B, Wehner S, Wolfinger MT, Backofen R, Gorodkin J, Grosse I, Hofacker I, Hoffmann S, Kaleta C, Stadler PF, Becker S, Marz M*",
     "citation": "Sci Rep. 2016 Oct 7;6:34589",
     "pubmed_url": "https://www.pubmed.ncbi.nlm.nih.gov/27713552/",
-    "paper_url": null
+    "paper_url": "https://doi.org/10.1038/srep34589"
   },
   {
     "year": 2015,
@@ -302,7 +306,7 @@
     "authors": "Seemann SE*, Anthon C, Palasca O, Gorodkin J",
     "citation": "Bioinform Biol Insights. 2016 Jun 6;9(Suppl 4):49-58. eCollection 2015",
     "pubmed_url": "https://www.pubmed.ncbi.nlm.nih.gov/27279738/",
-    "paper_url": null
+    "paper_url": "https://doi.org/10.4137/bbi.s29333"
   },
   {
     "year": 2015,
@@ -310,7 +314,7 @@
     "authors": "Sukosd Z*, Andersen ES, Seemann SE, Jensen MK, Hansen M, Gorodkin J, Kjems J*",
     "citation": "Nucleic Acids Res. 2015 Dec 2;43(21):10168-79. Epub 2015 Oct 17",
     "pubmed_url": "https://www.pubmed.ncbi.nlm.nih.gov/26476446/",
-    "paper_url": null
+    "paper_url": "https://doi.org/10.1093/nar/gkv1039"
   },
   {
     "year": 2015,
@@ -318,7 +322,7 @@
     "authors": "Hecker N, Christensen-Dalsgaard M, Seemann SE, Havgaard JH, Stadler PF, Hofacker IL, Nielsen H, Gorodkin J*",
     "citation": "Nucleic Acids Res. 2015 Sep 30;43(17):8135-45. Epub 2015 Aug 17",
     "pubmed_url": "https://www.pubmed.ncbi.nlm.nih.gov/26283181/",
-    "paper_url": null
+    "paper_url": "https://doi.org/10.1093/nar/gkv813"
   },
   {
     "year": 2015,
@@ -326,7 +330,7 @@
     "authors": "Mirza AH, Berthelsen CH, Seemann SE, Pan X, Frederiksen KS, Vilien M, Gorodkin J, Pociot F*",
     "citation": "Genome Med. 2015 May 13;7(1):39. eCollection 2015",
     "pubmed_url": "https://www.pubmed.ncbi.nlm.nih.gov/25991924/",
-    "paper_url": null
+    "paper_url": "https://doi.org/10.1186/s13073-015-0162-2"
   },
   {
     "year": 2014,
@@ -334,7 +338,7 @@
     "authors": "Anthon C, Tafer H, Havgaard JH, Thomsen B, Hedegaard J, Seemann SE, Pundhir S, Kehr S, Bartschat S, Nielsen M, Nielsen RO, Fredholm M, Stadler PF, Gorodkin J*",
     "citation": "BMC Genomics. 2014 Jun 10;15(1):459",
     "pubmed_url": "https://www.pubmed.ncbi.nlm.nih.gov/24917120/",
-    "paper_url": null
+    "paper_url": "https://doi.org/10.1186/1471-2164-15-459"
   },
   {
     "year": 2013,
@@ -342,7 +346,7 @@
     "authors": "Sabarinathan R, Tafer H, Seemann SE, Hofacker IL, Stadler PF, Gorodkin J*",
     "citation": "Nucleic Acids Res. 2013 Jul;41(Web Server issue):W475-9. Epub 2013 Apr 29",
     "pubmed_url": "https://www.pubmed.ncbi.nlm.nih.gov/23630321/",
-    "paper_url": null
+    "paper_url": "https://doi.org/10.1093/nar/gkt291"
   },
   {
     "year": 2013,
@@ -350,7 +354,7 @@
     "authors": "Sabarinathan R, Tafer H, Seemann SE, Hofacker IL, Stadler PF*, Gorodkin J*",
     "citation": "Hum Mutat. 2013 Apr;34(4):546-56",
     "pubmed_url": "https://www.pubmed.ncbi.nlm.nih.gov/23315997/",
-    "paper_url": null
+    "paper_url": "https://doi.org/10.1002/humu.22273"
   },
   {
     "year": 2012,
@@ -358,7 +362,7 @@
     "authors": "Seemann SE, Sunkin SM, Hawrylycz MJ, Ruzzo WL, Gorodkin J*",
     "citation": "BMC Genomics. 2012 May 31;13:214",
     "pubmed_url": "https://www.pubmed.ncbi.nlm.nih.gov/22651826/",
-    "paper_url": null
+    "paper_url": "https://doi.org/10.1186/1471-2164-13-214"
   },
   {
     "year": 2012,
@@ -366,7 +370,7 @@
     "authors": "Minocherhomji S, Seemann S, Mang Y, El-Schich Z, Bak M, Hansen C, Papadopoulos N, Josefsen K, Nielsen H, Gorodkin J, Tommerup N, Silahtaroglu A*",
     "citation": "Nucleic Acids Res. 2012 Aug;40(14):6660-72. Epub 2012 Apr 17",
     "pubmed_url": "https://www.pubmed.ncbi.nlm.nih.gov/22510267/",
-    "paper_url": null
+    "paper_url": "https://doi.org/10.1093/nar/gks302"
   },
   {
     "year": 2012,
@@ -374,7 +378,7 @@
     "authors": "Menzel P*, Seemann SE, Gorodkin J",
     "citation": "Bioinformatics. 2012 Oct 1;28(19):2523-6. Epub 2012 Jul 23",
     "pubmed_url": "https://www.pubmed.ncbi.nlm.nih.gov/22826541/",
-    "paper_url": null
+    "paper_url": "https://doi.org/10.1093/bioinformatics/bts461"
   },
   {
     "year": 2011,
@@ -382,7 +386,7 @@
     "authors": "Seemann SE, Menzel P, Backofen R, Gorodkin J*",
     "citation": "Nucleic Acids Res. 2011 Jul;39(Web Server issue):W107-11. Epub 2011 May 23",
     "pubmed_url": "https://www.pubmed.ncbi.nlm.nih.gov/21609960/",
-    "paper_url": null
+    "paper_url": "https://doi.org/10.1093/nar/gkr248"
   },
   {
     "year": 2011,
@@ -390,7 +394,7 @@
     "authors": "Seemann SE, Richter AS, Gesell T, Backofen R*, Gorodkin J*",
     "citation": "Bioinformatics. 2011 Jan 15;27(2):211-9. Epub 2010 Nov 18",
     "pubmed_url": "https://www.pubmed.ncbi.nlm.nih.gov/21088024/",
-    "paper_url": null
+    "paper_url": "https://doi.org/10.1093/bioinformatics/btq634"
   },
   {
     "year": 2010,
@@ -398,6 +402,22 @@
     "authors": "Seemann SE, Richter AS, Gorodkin J, Backofen R*",
     "citation": "Algorithms Mol Biol. 2010 May 21;5:22",
     "pubmed_url": "https://www.pubmed.ncbi.nlm.nih.gov/20492641/",
-    "paper_url": null
+    "paper_url": "https://doi.org/10.1186/1748-7188-5-22"
+  },
+  {
+    "year": 2008,
+    "title": "Unifying evolutionary and thermodynamic information for RNA folding of multiple alignments.",
+    "authors": "Seemann SE, Gorodkin J, Backofen R",
+    "citation": "Nucleic Acids Res. 2008 Nov;36(20):6355-62",
+    "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/18836192/",
+    "paper_url": "https://doi.org/10.1093/nar/gkn544"
+  },
+  {
+    "year": 2007,
+    "title": "Detection of RNA structures in porcine EST data and related mammals.",
+    "authors": "Seemann SE, Gilchrist MJ, Hofacker IL, Stadler PF, Gorodkin J",
+    "citation": "BMC Genomics. 2007; 8:316",
+    "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/17845718/",
+    "paper_url": "https://doi.org/10.1186/1471-2164-8-316"
   }
 ]
