@@ -9,10 +9,10 @@ permalink: /research/
 <div id="publications-container">
 {% for pub in site.data.publications_clean %}
   <details>
-    <summary><b>{{ pub.title }}</b></summary>
+    <summary>{{ pub.title }}</summary>
 
-   <p><strong>{{ pub.authors }}</strong></p>
-   <em>{{ pub.citation }}</em><br>
+   <p><strong>{{ pub.authors }}</strong><br>
+   <em>{{ pub.citation }}</em></p>
    {% if pub.paper_url %}
      <a href="{{ pub.paper_url }}">📄 Paper</a>
    {% endif %}
