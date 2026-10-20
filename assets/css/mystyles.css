@@ -16,7 +16,3 @@ details summary {
 details summary:hover {
   text-decoration: underline;
 }
-
-details > * {
-  margin: 0.5em 0;
-}
