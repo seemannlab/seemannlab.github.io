@@ -23,6 +23,7 @@ permalink: /research/
      <br>{{ pub.summary }}
    {% endif %}
    </p>
+   <hr>
   </details>
 {% endfor %}
 </div>
