@@ -9,7 +9,6 @@ details {
 details summary {
   cursor: pointer;
   font-weight: bold;
-  color: #0066cc;
   user-select: none;
 }
 

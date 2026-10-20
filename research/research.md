@@ -11,7 +11,7 @@ permalink: /research/
   <details>
     <summary><b>{{ pub.title }}</b></summary>
 
-   <p><strong>{{ pub.authors }}</strong><br>
+   <p><strong>{{ pub.authors }}</strong></p>
    <em>{{ pub.citation }}</em><br>
    {% if pub.paper_url %}
      <a href="{{ pub.paper_url }}">📄 Paper</a>
@@ -20,10 +20,8 @@ permalink: /research/
      <a href="{{ pub.pubmed_url }}">PubMed</a>
    {% endif %}
    {% if pub.summary %}
-     <br>{{ pub.summary }}
-   {% endif %}
-   </p>
-   <hr>
+     <p>{{ pub.summary }}</p>
+   {% endif %} 
   </details>
 {% endfor %}
 </div>
