@@ -1,0 +1,587 @@
+---
+title: "Statistical Methods in Bioinformatics - Expression Analysis"
+author: "Stefan E Seemann (seemann@rth.dk)"
+date: "29/04/2025"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    toc_depth: 3
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r install.packages, include=FALSE}
+#https://cran.r-project.org/web/packages/BiocManager/vignettes/BiocManager.html
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+requiredPackages = c('edgeR','DESeq2','vsn','org.Hs.eg.db', "knitr")
+for (p in requiredPackages) {
+  if(p %in% rownames(installed.packages()) == FALSE) {BiocManager::install(p)}
+}
+requiredPackages = c('ggplot2','dplyr','NMF','grDevices', "hexbin", "statmod", "reshape2")
+for (p in requiredPackages) {
+  if(p %in% rownames(installed.packages()) == FALSE) {install.packages(p)}
+}
+
+library(dplyr)
+library(DESeq2)
+library(edgeR)
+library(ggplot2)
+library(vsn)
+library(NMF)
+library(org.Hs.eg.db)
+library(knitr)
+library(grDevices)
+library(hexbin)
+library(statmod)
+library(reshape2)
+```
+
+
+```{r set active ggplot2 theme for entire script, include=FALSE}
+theme_set(theme_bw(base_size = 18))
+```
+
+# Introduction
+
+## Aim of the exercise
+
+The goal of this exercise is to introduce you to [Bioconductor](https://www.bioconductor.org/) and some basic analyses on raw read counts including normalization, transformation, visualization and differential expression. You will also examine the variance and the dispersion in RNA-seq data - two concepts that are needed to understand how `DESeq2` and `edgeR` pipelines work for differential expression.
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>. When you click the **Knit** button in Rstudio a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
+
+## Bioconductor
+
+### About Bioconductor
+
+[Bioconductor project](https://www.bioconductor.org/) host several open source R packages that are designed for the analysis of biological assays. The main tools [`edgeR`](https://bioconductor.org/packages/release/bioc/html/edgeR.html) and [`DESeq2`](https://bioconductor.org/packages/release/bioc/html/DESeq2.html) are part of Bioconductor repository. R packages from Bioconductor comes with vignettes that are designed to run a full analysis for each tool deposited there. Vignettes and detailed documents about how to use the R package is of great help for anyone who performs bioinformatics analysis. For example, both [`edgeR`](https://www.bioconductor.org/packages/release/bioc/vignettes/edgeR/inst/doc/edgeRUsersGuide.pdf) and [`DESeq2`](https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html)  has great manuals (perhaps the best in Bioconductor).
+
+# Data
+
+The exercise is based on the following two sources:
+
++ https://davetang.org/muse/2012/04/14/variance-in-rna-seq-data/
++ https://chagall.med.cornell.edu/RNASEQcourse/Intro2RNAseq.pdf
+
+Read counts come from [a study](https://www.pnas.org/content/early/2008/12/16/0807121105) about the profiling of poly(A)-selected RNA in LNCaP cells before and after androgen stimulation. Briefly, the study used LNCaP cells, which are androgen-sensitive human prostate adenocarcinoma cells, and treated the cells with DHT (endogenous androgen sex steroid and hormone) and with a mock treatment as the control. The poly-A RNAs were captured and sequenced on 7 lanes.
+
+## Read count table
+
+```{r load.data}
+file_url <- 'http://davetang.org/eg/pnas_expression.txt'
+data <- read.table(file_url, header=T, sep="\t", stringsAsFactors=F, row.names=1)
+head(data)
+
+rmCol <- 8 # column "len" with no count information
+rmZero <- rowSums(data[,-rmCol])>0 # genes zero counts across all lanes
+table(rmZero)
+data_subset <- data[rmZero,-rmCol]
+```
+
+**Question:**  How many genes have more than zero expression?
+
+
+# Key concepts about DGE analysis
+
+## Counts per million (CPM) normalization
+
+```{r norm.cpm}
+data_subset_cpm <- data_subset
+colSums(data_subset_cpm)
+norm_cpm <- function(x){
+x * 1000000 / sum(x)
+}
+data_subset_cpm <- apply(data_subset_cpm, 2, norm_cpm)
+colSums(data_subset_cpm)
+```
+
+## Mean and variance of CPM normalized read counts
+
+```{r stats, warning=FALSE}
+## Basic statistics
+mock_cols <- 1:4 # Column ID for mock treated samples
+dht_cols <- 5:7  # Column ID for DHT treated samples
+mock_var <- apply(data_subset_cpm[,mock_cols], 1, var)   # Variance for mock group
+mock_mean <- apply(data_subset_cpm[,mock_cols], 1, mean) # Mean for mock group
+dht_var <- apply(data_subset_cpm[,dht_cols], 1, var)     # Variance for DHT group
+dht_mean <- apply(data_subset_cpm[,dht_cols], 1, mean)   # Mean for DHT group
+cor(mock_mean, mock_var, method="spearman") # Mean-Variance correlation in mock group
+cor(dht_mean, dht_var, method="spearman")   # Mean-Variance correlation in DHT group
+
+## Plot mean-variance trends (mock)
+mock <- as.data.frame(cbind(mock_mean, mock_var))
+# Linear scale
+ggplot(mock, aes(mock_mean, mock_var)) + 
+  geom_point() + 
+  geom_smooth(method="loess")
+# Log2 scale
+ggplot(mock, aes(mock_mean, mock_var)) + 
+  geom_point() + 
+  geom_smooth(method="loess") + 
+  scale_x_continuous(trans='log2') + 
+  scale_y_continuous(trans='log2') + 
+  labs(x = 'mock_mean (log2 scale)', y = 'mock_var (log2 scale)')
+
+## Plot mean-variance trends (DHT)
+dht <- as.data.frame(cbind(dht_mean, dht_var))
+# Linear scale
+ggplot(dht, aes(dht_mean, dht_var)) + 
+  geom_point() + 
+  geom_smooth(method="loess")
+# Log2 scale
+ggplot(dht, aes(dht_mean, dht_var)) + 
+  geom_point() + 
+  geom_smooth(method="loess") + 
+  scale_x_continuous(trans='log2') + 
+  scale_y_continuous(trans='log2') + 
+  labs(x = 'dht_mean (log2 scale)', y = 'dht_var (log2 scale)')
+```
+
+**Question:** How are mean and variance correlated?
+
+**Question** How do mean and variance differ between Control and DHT treatment samples?
+
+
+## Gene dispersion 
+
+Assume that you have 2 genes with the following counts:
+
+```{r simple.dispersion, warning=FALSE}
+# Create simple gene count data
+simple_counts <- t(data.frame(Gene_1 = c(1000, 1010, 990, 1000), Gene_2 = c(10, 20, 0, 10)))
+simple_counts
+
+# Calculate variance
+simple_vars <- apply(simple_counts, 1, var)
+simple_vars
+
+# Calculate % fluctuation from mean
+perc_fluctuate <- function(x){
+  ((x-mean(x))/mean(x)) * 100
+}
+simple_fluc <- apply(simple_counts, 1, perc_fluctuate)
+t(simple_fluc)
+```
+
+Although the variance of these two genes are exactly the same, Gene_1 has 1% fluctuations around mean, while Gene_2 has 100% fluctuations around mean. Clearly, Gene_2 is more variable and this is handled by **dispersion** estimations. Dispersion estimation is sophisticated, however most modern tools like `edgeR` and `DESeq2` handles it automatically. 
+
+The bigger dispersion means more variability across genes. For instance, if you estimate dispersion as 0.19, biological coefficient of variation (BCV, square root of dispersion) is equal to 0.44. This means that the expression values vary up and down by 44% between replicates.
+
+Let's make a comparison with real data with manually calculating the CPMs and mean expression values. 
+```{r cpm.edgeR.manual, warning=FALSE}
+d <- data[rmZero,-rmCol]
+# Working only with "mock" samples for simplicity. 
+# In real life, we include all the samples for better dispersion estimation (below: estimateDispersion)
+d <- d[,mock_cols] 
+group <- c(rep("mock",4))
+d.e <- DGEList(counts = d, group=group)
+
+# calculate edgeR’s average log2(CPM) and tagwise dispersion
+d.e <- calcNormFactors(d.e)
+d.e <- estimateCommonDisp(d.e, verbose=T)
+d.e <- estimateTagwiseDisp(d.e)
+summary(d.e$tagwise.dispersion)
+
+# sanity check between edgeR’s average log2 cpm calculations versus our own
+cor(d.e$AveLogCPM, log2(mock_mean), method="spearman")
+plot(d.e$AveLogCPM, log2(mock_mean), pch='.')
+```
+
+Now, we will use `edgeR` pipeline to calculate average expression and dispersion estimates. 
+```{r dispersion.edgeR, warning=FALSE}
+# plot the tagwise (gene-wise) dispersion against the average log2(CPM)
+d.df <- data.frame(AveLogCPM = d.e$AveLogCPM, Dispersion  = d.e$tagwise.dispersion)
+ggplot(d.df, aes(AveLogCPM, Dispersion)) + 
+  geom_point() + 
+  geom_smooth(method="loess")
+```
+
+**Question:** The square root of the negative binomial dispersion is the biological coefficient of variation (BCV) across the replicate samples. So how large is the variability of the normalized read counts in the (1) mock samples and (2) DHT treatment samples?
+
+**Question:** Are edgeR's average log2-CPM calculation and our own log2 CPM the same?
+
+**Question:** How are tagwise (gene-wise) dispersion and the average log2 CPM (expression level) correlated?
+
+
+## Model read counts as Poisson distribution
+
+Let's simulate counts that follow a Poisson distribution. 
+```{r sim.poisson, warning=FALSE}
+set.seed(31)
+sim <- t(sapply(dht_mean, rpois, n=4))
+sim_mean <- apply(sim, 1, mean)
+sim_var <- apply(sim, 1, var)
+cor(sim_mean, sim_var, method="spearman")
+sim.df <- as.data.frame(cbind(sim_mean, sim_var))
+ggplot(sim.df, aes(sim_mean, sim_var)) + 
+  geom_point() + 
+  geom_smooth()
+ggplot(sim.df, aes(sim_mean, sim_var)) + 
+  geom_point() + 
+  geom_smooth() + 
+  scale_x_continuous(trans='log2') + 
+  scale_y_continuous(trans='log2')
+```
+
+**Question:** How does the mean versus variance plot look for counts that follow a Poisson distribution?
+
+Now, we will use `edgeR` pipeline for the simulated counts to calculate average expression and dispersion estimates. 
+```{r edgeR.poisson}
+sim.e <- DGEList(counts = sim, group=c(rep("mock",2),c(rep("dht", 2))))
+
+# calculate edgeR’s average log2(CPM) and tagwise dispersion
+sim.e <- calcNormFactors(sim.e)
+sim.e <- estimateCommonDisp(sim.e, verbose=T)
+sim.e <- estimateTagwiseDisp(sim.e)
+summary(sim.e$tagwise.dispersion)
+
+# sanity check between edgeR’s average log2 cpm calculations versus our own
+cor(sim.e$AveLogCPM, log2(sim_mean), method="spearman")
+plot(sim.e$AveLogCPM, log2(sim_mean), pch='.')
+
+# plot the tagwise (gene-wise) dispersion against the average log2(CPM)
+sim.df <- as.data.frame(cbind(sim.e$AveLogCPM, sim.e$tagwise.dispersion)); colnames(sim.df) <- c("AveLogCPM", "Dispersion")
+ggplot(sim.df, aes(AveLogCPM, Dispersion)) + geom_point() + geom_smooth(method="loess")
+```
+
+**Question:** How are the average log2-CPM calculated by edgeR and log2 mean raw count of the simulated data correlated?
+
+**Question:** How are tagwise (gene-wise) dispersion and the average log2-CPM (expression level) correlated in the count data from the Poisson distribution?
+
+
+## Filtering counts
+
+Genes with low counts across libraries provide little evidence for differential expression. Because,
+
+- **Biological aspect**: The gene expression level should be at a certain minimal level before it is transcribed into proteins
+- **Statistical aspect**: It is presumed that the expression difference between the genes with low counts are not relevant; therefore, including them in multiple testing would inflate the type-1 error. If less statistical tests are performed, then the correction for multiple testing becomes less stringent.
+
+One should consider removing the lowly expressed genes before proceeding with differential analysis. There are different strategies on filtering lowly expressed genes. For example: 
+
+- `DESeq2`: Uses "independent" filtering using `filter_p` function from [genefilter](http://bioconductor.org/packages/release/bioc/html/genefilter.html) R package.
+- `edgeR`: Uses internal function `filterByExpr`to remove lowly expressed genes across groups of interest.
+
+Examples of these steps are provided below for each analysis pipeline. 
+
+
+
+# `DESeq2` differential expression analysis
+
+## Read count matrix
+
+```{r deseq2_read, warning=FALSE}
+d <- data[,-rmCol]
+sample_info <- data.frame(condition = c(rep("mock",4),rep("dht",3)), row.names = colnames(d))
+sample_info
+#create DE dataset in DESeq2
+DESeq.ds <- DESeqDataSetFromMatrix(countData = d, colData = sample_info, design = ~ condition)
+```
+
+## Pre-filtering
+
+```{r deseq_prefilter, warning=FALSE}
+#pre-filtering counts: although not necesseary, it will increase the speed due to less memory consumption 
+mincount <- 1
+keep <- rowSums(counts(DESeq.ds)) > mincount
+table(keep)
+DESeq.ds <- DESeq.ds[keep,]
+```
+
+Another alternative way to prefilter data is
+```{r deseq_prefilter2, eval=FALSE}
+# at least 3 samples with a count of 10 or higher
+keep <- rowSums(counts(DESeq.ds) >= 10) >= 3
+```
+
+## Normalize counts
+
+Counts normalized using DESeq2's size factor:
+```{r deseq_normalize_sf, warning=FALSE}
+#calculate and normalize with DESeq's size factor
+colSums(counts(DESeq.ds))
+DESeq.ds <- estimateSizeFactors(DESeq.ds)
+sizeFactors(DESeq.ds)
+colData(DESeq.ds)
+counts.sf_normalized <- counts(DESeq.ds, normalized = TRUE)
+
+#put two plots in the same plotting space
+par(mfrow=c(1, 2))
+#plot DESeq's library size normalized counts
+boxplot(counts.sf_normalized, notch = TRUE, main = "untransformed read counts", ylab = "read counts")
+#plot log2 transformed DESeq's normalized counts
+log.norm.counts <- log2(counts.sf_normalized + 1)
+boxplot(log.norm.counts, notch = TRUE, main = "log2 - transformed read counts", ylab = "log2(read counts)")
+```
+
+DESeq2’s rlog() function returns values that are both normalized for sequencing depth and transformed to the log2 scale where the values are adjusted to fit the experiment-wide trend of the variance-mean relationship
+
+```{r deseq_normalize_rlog, warning=FALSE}
+#Transformation of read counts including variance shrinkage
+DESeq.rlog <- rlog(DESeq.ds, blind = TRUE )
+rlog.norm.counts <- assay(DESeq.rlog)
+
+par(mfrow=c(2, 2))
+#plot raw counts
+plot(counts(DESeq.ds)[,1:2], cex =.1 , main = "Raw read counts" )
+#plot DESeq's library size normalized counts
+plot(counts.sf_normalized[,1:2], cex =.1 , main = "library size normalized read counts" )
+#plot log2 transformed DESeq's library size normalized counts
+plot(log.norm.counts[,1:2], cex =.1 , main = "library size normalized log2 (read counts)")
+#plot rlog-transformed counts
+plot(rlog.norm.counts[,1:2], cex =.1, main = "rlog-transformed read counts")
+
+#mean-sd-plots based on all samples of the experiment
+msd_plot <- meanSdPlot(log.norm.counts, ranks=FALSE, plot=FALSE)
+msd_plot$gg + ggtitle("library size normalized log2 (read counts)") + ylab (" standard deviation") + ylim(0,1)
+msd_plot <- meanSdPlot(rlog.norm.counts, ranks=FALSE, plot=FALSE)
+msd_plot$gg + ggtitle("rlog-transformed read counts") + ylab ("standard deviation") + ylim(0,1)
+```
+
+**Question:** Visually explore the normalized and transformed read counts between sample 1 and 2? Describe the differences between (1) raw read counts, (2) DESeq's library size normalized counts, (3) log2 transformed DESeq's library size normalized counts, and (4) DESeq's rlog-transformed counts.
+
+**Question:** Many statistical tests and analyses assume that data is homoskedastic, i.e. that all variables have similar variance. However, data with large differences among the sizes of the individual observations often shows heteroskedastic behavior. Do you see a dependence of the standard deviation (or variance) on the mean for (1) log2 transformed DESeq's library size normalized counts, and (2) DESeq's rlog-transformed counts?
+
+
+## Exploring global read count patterns
+
+### Hierarchical clustering
+
+For hierarchical clustering of samples you have to decide about a similarity measure for pairwise comparison of individual samples and a linkage measure to define clusters.
+For background, see: https://chagall.med.cornell.edu/RNASEQcourse/Intro2RNAseq.pdf#subsubsection.5.3.2
+
+```{r deseq_hclust, warning=FALSE}
+distance.m_rlog <- as.dist(1-cor(rlog.norm.counts, method="pearson"))
+plot(hclust(distance.m_rlog), labels = colnames(rlog.norm.counts), main="rlog transformed read counts\ndistance: Pearson correlation")
+```
+
+**Question:** Can you make a dendrogram with Euclidean distance and linkage method "average"?
+
+
+### Dimension reduction: PCA (Principal component analysis)
+
+```{r deseq_pca, warning=FALSE, echo=FALSE}
+ntop <- 500
+rv <- matrixStats::rowVars(assay(DESeq.rlog))
+select <- order(rv, decreasing = TRUE)[1:ntop]
+mat <- t(assay(DESeq.rlog)[select, ] )
+
+## Calculate PCA
+pca <- prcomp(mat)
+res.pca <- merge(pca$x, sample_info, by = "row.names")
+colnames(res.pca)[1] <- "sample"
+
+## get variance explained for PC1 and PC2
+pct_var <- summary(pca)$importance["Proportion of Variance", ]
+pc1_lbl <- paste0("PC1 (", scales::percent(pct_var["PC1"]), ")")
+pc2_lbl <- paste0("PC2 (", scales::percent(pct_var["PC2"]), ")")
+
+ggplot(res.pca, aes(x = PC1, y = PC2)) +
+  geom_point(aes(color = condition, shape = condition), size = 4) +
+  xlab(pc1_lbl) + ylab(pc2_lbl) +
+  theme(text = element_text(size = 20))
+
+## calculate variance explained
+pca.var <- summary(pca)
+pca.var <- pca.var$importance["Proportion of Variance", ] %>% reshape2::melt()
+pca.var <- data.frame(PC = rownames(pca.var), 
+                      pca.var)
+pca.var$PC <- factor(pca.var$PC, level = pca.var$PC)
+
+ggplot(pca.var, aes(x = PC, y = value)) +
+  ggtitle("Scree plot") +
+  geom_bar(stat = "identity") + 
+  ylab("Variance Explained (%)") + 
+  scale_y_continuous(labels = scales::percent)
+```
+
+**Question:** How well can the different conditions be separated through dimension reduction? How much of the variance is described by the principle component that separates conditions?
+
+**Questions:** How did we select the genes used for principle component analysis? How do the results change with a different subset of genes? Do the overall conclusions change?
+
+
+## Differential expression
+
+First we set the reference condition (depending on how you specify the contrast for the DGE analysis this step might be skipped): 
+```{r deseq2.reference.level, warning=FALSE}
+# Setup the factor levels for design 
+str(colData(DESeq.ds)$condition)
+# We set "mock" as the first level which will be treated as reference condition in the differential expression analysis
+colData(DESeq.ds)$condition <- relevel(colData(DESeq.ds)$condition, "mock")
+str(colData(DESeq.ds)$condition)
+```
+
+### Design matrix with intercept
+```{r deseq.design.with.intersept, warning=FALSE}
+# Defining design formula
+design(DESeq.ds) <- ~ condition
+
+# Run DESeq
+DESeq.ds <- DESeq(DESeq.ds)
+
+#instead of calling the function DESeq you can also run the following sequence of commands:
+#DESeq.ds <- estimateSizeFactors(DESeq.ds)
+#DESeq.ds <- estimateDispersions(DESeq.ds)
+#DESeq.ds <- nbinomWaldTest(DESeq.ds)
+
+# Differential expression results 
+# We are comparing "dht" vs "mock" in column 'condition'
+# The contrast is specified by contrast = c("condition", "dht", "mock").
+# Alternative the same contrast can be specified by c(0,1) if "mock" is set as reference condition in the design
+DGE.results <- results(object = DESeq.ds, 
+                       independentFiltering = TRUE, 
+                       alpha = 0.05, 
+                       contrast = c("condition", "dht", "mock")
+                       )
+summary(DGE.results)
+```
+**Question:** How many differentially expressed genes are found with multiple testing adjusted p<0.05?
+
+
+### Design matrix without intercept
+```{r deseq.design.without.intersept, warning=FALSE}
+# Defining design formula
+design(DESeq.ds) <- ~0 + condition
+
+# Run DESeq
+DESeq.ds <- DESeq(DESeq.ds)
+
+# Differential expression results 
+# We are comparing "dht" vs "mock" in column 'condition'
+# The contrast is specified by contrast = c("condition", "dht", "mock").
+# Alternative the same contrast can be specified by c(-1,1)
+DGE.results <- results(object = DESeq.ds, 
+                       independentFiltering = TRUE, 
+                       alpha = 0.05, 
+                       contrast = c("condition", "dht", "mock")
+                       )
+summary(DGE.results)
+```
+**Question:** How many differentially expressed genes are found with multiple testing adjusted p<0.05?
+
+
+Did you notice that adjusted p-values (column: `padj`) contain some `NA` values? If not, let's have a look:
+
+```{r deseq2_naVals, warning=FALSE}
+print(DGE.results)
+```
+This is because `DESeq2` sets adjusted p-values to `NA` if those genes have low counts. 
+
+**Question:** How many genes have low counts?
+
+
+Therefore, the genes with `NA` adjusted p-values are not of interest for us and we can remove them before proceeding with dowstream analysis. 
+
+```{r deseq2_naVals2, warning=FALSE}
+DGE.results <- DGE.results[!is.na(DGE.results$padj),]
+```
+
+## Visualization of DGE results
+
+### p-value histogram
+
+The p-values follow a uniform distribution under null hypothesis. If you have a peak around zero, your alternative hypotheses live- along with some potential false positives. 
+
+If you would like to learn more about potential scenarious about how your p-value distribution might look like, here is a detailed [blog post](http://varianceexplained.org/statistics/interpreting-pvalue-histogram/) by David Robinson about "How to interpret a p-value histogram".
+
+```{r deseq2_pvalHist, warning=FALSE}
+# Histogram of p-values for all genes tested for no differential expression between the two conditions
+hist(DGE.results$pvalue, col = "grey" , border = "white", xlab = "", ylab = "", main = "frequencies of p-values")
+```
+
+### MA-plots
+
+```{r deseq2_maPlot, warning=FALSE}
+# MA plot
+DESeq2::plotMA(DGE.results, alpha = 0.05, main = "Control vs. DHT-Treated" , ylim = c(-9,9))
+```
+
+### Heatmaps
+
+```{r deseq2_heatmap, warning=FALSE}
+# Heatmap
+DGE.results.sorted <- DGE.results[order(DGE.results$padj), ]
+DGEgenes <- rownames(subset(DGE.results.sorted, padj < 0.05))
+hm.mat_DGEgenes <- log.norm.counts[DGEgenes,]
+# No clustering and no row (gene) scaling
+aheatmap(hm.mat_DGEgenes, Rowv = NA, Colv = NA, main = "No clustering")
+# Clustering and no row (gene) scaling.
+aheatmap(hm.mat_DGEgenes, Rowv = TRUE, Colv = TRUE, distfun = "euclidean", hclustfun = "average", main = "Clustering without row (gene) scaling")
+# Clustering and row (gene) scaling.
+aheatmap(hm.mat_DGEgenes, Rowv = TRUE, Colv = TRUE, distfun = "euclidean", hclustfun = "average", scale = "row", main = "Clustering with row (gene) scaling")
+# Gene scaling before hierarchical clustering.
+aheatmap(t(scale(t(hm.mat_DGEgenes))), Rowv = TRUE, Colv = TRUE, distfun = "euclidean", hclustfun = "average", main = "Clustering after row (gene) scaling, and without sample-wise clustering")
+```
+
+### Volcano plots
+
+```{r deseq2_volcano, warning=FALSE}
+volDat <- as.data.frame(DGE.results.sorted)
+volDat <- volDat[!is.na(volDat$padj), ]
+volDat$DGE <- volDat$padj < 0.05
+
+ggplot(volDat, aes(x = log2FoldChange, y = -log10(padj), color = DGE)) + 
+  geom_point(alpha = 0.50) +
+  scale_color_manual(values=c("TRUE"="red", "FALSE" = "gray"))
+```
+
+## Annotating DGE results
+```{r deseq2_annot, warning=FALSE}
+## Create gene annotation
+
+## Useful functions commented out below
+#keytypes(org.Hs.eg.db)
+#columns(org.Hs.eg.db)
+anno <- AnnotationDbi::select(x = org.Hs.eg.db, 
+                              keys = rownames(DGE.results), 
+                              keytype = "ENSEMBL", 
+                              columns = c("GENENAME", "SYMBOL"))
+anno <- anno %>% 
+  dplyr::group_by(ENSEMBL) %>% 
+  dplyr::filter(n() == 1)
+
+## merge DGE analysis results with gene annotation
+deseq_dge <- merge(x = as.data.frame(DGE.results),
+                   y = anno, 
+                   by.x = "row.names", 
+                   by.y = "ENSEMBL", 
+                   all.x = TRUE,
+                   all.y = FALSE)
+colnames(deseq_dge)[1] <- "ENSEMBL"
+deseq_dge <- deseq_dge %>% mutate(Direction = if_else(log2FoldChange >= 0, true = "up", false = "down"))
+deseq_dge <- deseq_dge %>% dplyr::arrange(pvalue)
+head(deseq_dge)
+
+## Create output
+# all results 
+write.table(deseq_dge, 
+            file = "DESeq2_all-genes.txt", 
+            sep = "\t", 
+            quote = FALSE, 
+            row.names = FALSE)
+
+# only differentially expressed genes 
+write.table(deseq_dge %>% dplyr::filter(padj < 0.05), 
+            file = "DESeq2_de-genes.txt", 
+            sep = "\t", 
+            quote = FALSE, 
+            row.names = FALSE)
+
+
+## Plot individual genes
+deseq_dge %>% dplyr::filter(SYMBOL=="TMEFF2") #known differential expressed gene in LNCaP human prostate cancer progression model
+plotCounts(dds = DESeq.ds, intgroup = c("condition"),
+           gene = "ENSG00000144339", 
+           normalized = TRUE, 
+           transform = FALSE, 
+           main = expression(atop("Expression of "*italic("TMEFF2"))))
+```
+
+**Question:** What is the function of TMEFF2? Does the expression profile of the gene fit with your expectations?
